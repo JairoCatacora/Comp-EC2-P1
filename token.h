@@ -32,6 +32,10 @@ public:
         ENDIF,
         ENDWHILE,
         ELSE,
+        VAR,
+        COMA,
+        TRUE,
+        FALSE,
         END      // Fin de entrada
     };
 
