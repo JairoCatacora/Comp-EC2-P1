@@ -1,0 +1,9 @@
+var int x,y;
+x = 3;
+y = 2;
+if x < 5 then
+    var int y;
+    y = 10;
+    print(y)
+endif;
+print(y)

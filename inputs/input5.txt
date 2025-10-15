@@ -1,0 +1,13 @@
+var int limit, temp;
+limit = 3;
+temp = 0;
+while 0  < limit do
+    var int temp;
+    temp = limit * 2;
+    print(temp);
+    temp = temp + 1;
+    print(temp);
+    limit = limit - 1
+endwhile;
+print(limit);
+print(temp)

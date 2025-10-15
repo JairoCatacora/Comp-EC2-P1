@@ -1,0 +1,14 @@
+var int x;
+var bool flag;
+x = 3;
+flag = true;
+if flag then
+    var int y;
+    y = x * 2;
+    print(y)
+else
+    var int y;
+    y = 0;
+    print(y)
+endif;
+print(flag)
