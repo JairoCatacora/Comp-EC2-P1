@@ -74,12 +74,30 @@ public:
     virtual ~Stm() = 0;
 };
 
+class VarDec {
+public:
+    string tipo;
+    list<string> variables;
+    VarDec();
+    ~VarDec();
+    int accept(Visitor* visitor);
+};
+
+class Body {
+public:
+    list<VarDec*> dcList;
+    list<Stm*> stmList;
+    Body();
+    ~Body();
+    int accept(Visitor* visitor);
+};
+
 class IfStm: public Stm {
 public:
     Exp* condicion;
     bool parteelse;
-    list<Stm*> slist1;
-    list<Stm*> slist2;
+    Body* caso1;
+    Body* caso2;
     IfStm(Exp*);
     ~IfStm();
     int accept(Visitor* visitor);
@@ -88,7 +106,7 @@ public:
 class WhileStm: public Stm {
 public:
     Exp* condicion;
-    list<Stm*> slist1;
+    Body* caso1;
     WhileStm(Exp*);
     ~WhileStm();
     int accept(Visitor* visitor);
@@ -113,9 +131,8 @@ public:
 
 class Program{
 public:
-    list<Stm*> slist;
+    Body* cuerpo;
     Program();
-    void add(Stm*);
     ~Program();
     int accept(Visitor* visitor);
 };

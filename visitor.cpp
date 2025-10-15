@@ -3,10 +3,11 @@
 #include <cmath>
 #include "ast.h"
 #include "visitor.h"
-
+#include "environment.h"
 
 using namespace std;
-unordered_map<std::string, int> memoria;
+
+Environment memoria;
 
 ///////////////////////////////////////////////////////////////////////////////////
 int BinaryExp::accept(Visitor* visitor) {
@@ -43,6 +44,14 @@ int IfStm::accept(Visitor* visitor) {
 }
 
 int WhileStm::accept(Visitor* visitor) {
+    return visitor->visit(this);
+}
+
+int Body::accept(Visitor* visitor) {
+    return visitor->visit(this);
+}
+
+int VarDec::accept(Visitor* visitor) {
     return visitor->visit(this);
 }
 
@@ -136,9 +145,7 @@ void EVALVisitor::interprete(Program* programa){
 //////////////////////////////////////////
 
 int PrintVisitor::visit(Program* p) {
-    for(auto i: p->slist){
-        i->accept(this);
-    }
+    p->cuerpo->accept(this);
     return 0;
 }
 
@@ -162,7 +169,24 @@ int PrintVisitor::visit(IdExp* p) {
 }
 
 int EVALVisitor::visit(Program* p) {
-    for(auto i: p->slist){
+    memoria.add_level();
+    p->cuerpo->accept(this);
+    memoria.remove_level();
+    return 0;
+}
+
+int EVALVisitor::visit(VarDec* v) {
+    for (auto i : v->variables) {
+        memoria.add_var(i, v->tipo);
+    }
+    return 0;
+}
+
+int EVALVisitor::visit(Body* b) {
+    for (auto i : b->dcList) {
+        i->accept(this);
+    }
+    for (auto i : b->stmList) {
         i->accept(this);
     }
     return 0;
@@ -174,24 +198,30 @@ int EVALVisitor::visit(PrintStm* p) {
 }
 
 int EVALVisitor::visit(AssignStm* p) {
-    memoria[p->id] = p->e->accept(this);
+    memoria.update(p->id, p->e->accept(this));
     return 0;
 }
 
 int EVALVisitor::visit(IdExp* p) {
-    return memoria[p->value];
+    return memoria.lookup(p->value);
 }
 
 
 
 int EVALVisitor::visit(IfStm* stm) {
     if (stm->condicion->accept(this)){
-        for(auto i:stm->slist1){
+        for(auto i:stm->caso1->dcList){
+            i->accept(this);
+        }
+        for(auto i:stm->caso1->stmList){
             i->accept(this);
         }
     }
     else{
-        for(auto i:stm->slist2){
+        for(auto i:stm->caso2->dcList){
+            i->accept(this);
+        }
+        for(auto i:stm->caso2->stmList){
             i->accept(this);
         } 
     }
@@ -200,26 +230,62 @@ int EVALVisitor::visit(IfStm* stm) {
 
 int EVALVisitor::visit(WhileStm* stm) {
     while(stm->condicion->accept(this)){
-        for(auto i:stm->slist1){
+        for(auto i:stm->caso1->dcList){
+            i->accept(this);
+        }
+        for(auto i:stm->caso1->stmList){
             i->accept(this);
         }
     }
     return 0;
 }
 
+int PrintVisitor::visit(VarDec* v) {
+    cout << "var " << v->tipo << " ";
+    bool primero = true;
+    for (auto var : v->variables) {
+        if (!primero) {
+            cout << ", ";
+        }
+        cout << var;
+        primero = false;
+    }
+    cout << ";" << endl;
+    return 0;
+}
+
+int PrintVisitor::visit(Body* b) {
+    for (auto i : b->dcList) {
+        i->accept(this);
+    }
+    for (auto i : b->stmList) {
+        i->accept(this);
+    }
+    return 0;
+}
 
 int PrintVisitor::visit(IfStm* stm) {
     cout << "if " ;
     stm->condicion->accept(this);
     cout  << " then" << endl;
-    for (auto i:stm->slist1){
+    for (auto i:stm->caso1->dcList){
+        cout << "\t";
+        i->accept(this);
+    }
+    for (auto i:stm->caso1->stmList){
+        cout << "\t";
         i->accept(this);
     }
     if (stm->parteelse){
         cout << "else"  << endl;;
-        for (auto i:stm->slist2){
-             i->accept(this);
-    }
+        for (auto i:stm->caso2->dcList){
+            cout << "\t";
+            i->accept(this);
+        }
+        for (auto i:stm->caso2->stmList){
+            cout << "\t";
+            i->accept(this);
+        }
     }   
     cout << "endif" << endl;
     return 0;
@@ -229,7 +295,12 @@ int PrintVisitor::visit(WhileStm* stm) {
     cout << "while " ;
     stm->condicion->accept(this);
     cout  << " do" << endl;
-    for (auto i:stm->slist1){
+    for (auto i:stm->caso1->dcList){
+        cout << "\t";
+        i->accept(this);
+    }
+    for (auto i:stm->caso1->stmList){
+        cout << "\t";
         i->accept(this);
     }
     cout << "endwhile" << endl;

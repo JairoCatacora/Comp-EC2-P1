@@ -1,4 +1,12 @@
 === STDOUT ===
+Codigo:
+var int a, b, c;
+a=2
+b=3
+c=a * b + 4
+print(c)
+
+Interprete:
+10
 
 === STDERR ===
-Error al parsear: Error sintáctico

@@ -1,4 +1,19 @@
 === STDOUT ===
+Codigo:
+var int x, y;
+x=10
+y=20
+if x < y then
+	var int z;
+	z=y - x
+	print(z)
+else
+	var int w;
+	w=x - y
+	print(w)
+endif
+
+Interprete:
+10
 
 === STDERR ===
-Error al parsear: Error sintáctico

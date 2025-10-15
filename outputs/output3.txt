@@ -1,4 +1,22 @@
 === STDOUT ===
+Codigo:
+var int x;
+var bool flag;
+x=3
+flag=1
+if flag then
+	var int y;
+	y=x * 2
+	print(y)
+else
+	var int y;
+	y=0
+	print(y)
+endif
+print(flag)
+
+Interprete:
+6
+1
 
 === STDERR ===
-Error al parsear: Error sintáctico

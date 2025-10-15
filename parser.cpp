@@ -58,16 +58,41 @@ bool Parser::isAtEnd() {
 
 Program* Parser::parseProgram() {
     Program* p = new Program();
-    p->add(parseStm());
-    while(match(Token::SEMICOL)){
-        p->add(parseStm());
-    }
-    if (!isAtEnd()) {
-        throw runtime_error("Error sintáctico");
+    p->cuerpo = parseBody();
+    return p;
+}
+
+Body* Parser::parseBody() {
+    Body* b = new Body();
+    
+    while (match(Token::VAR)) {
+        b->dcList.push_back(parseVarDec());
+        match(Token::SEMICOL);
     }
     
-    cout << "Parseo exitoso" << endl;
-    return p;
+    b->stmList.push_back(parseStm());
+    while (match(Token::SEMICOL)) {
+        b->stmList.push_back(parseStm());
+    }
+
+    return b;
+}
+
+VarDec* Parser::parseVarDec() {
+    VarDec* vd = new VarDec();
+
+    if (match(Token::ID)) {
+        vd->tipo = previous->text;
+        if (match(Token::ID)) {
+            vd->variables.push_back(previous->text);
+            while (match(Token::COMA)) {
+                if (match(Token::ID)) {
+                    vd->variables.push_back(previous->text);
+                }
+            }
+        }
+    }
+    return vd;
 }
 
 Stm* Parser::parseStm() {
@@ -90,10 +115,7 @@ Stm* Parser::parseStm() {
         e =  parseCE(); 
         WhileStm* clasewhile = new WhileStm(e);  
         match(Token::DO);
-        clasewhile->slist1.push_back(parseStm());
-        while(match(Token::SEMICOL)){
-            clasewhile->slist1.push_back(parseStm());
-        }
+        clasewhile->caso1 = parseBody();
         match(Token::ENDWHILE);
         return clasewhile;
     }
@@ -102,16 +124,10 @@ Stm* Parser::parseStm() {
         e =  parseCE(); 
         IfStm* claseif = new IfStm(e);  
         match(Token::THEN);
-        claseif->slist1.push_back(parseStm());
-        while(match(Token::SEMICOL)){
-            claseif->slist1.push_back(parseStm());
-        }
+        claseif->caso1 = parseBody();
         if(match(Token::ELSE)){
-           claseif->parteelse=true; 
-            claseif->slist2.push_back(parseStm());
-            while(match(Token::SEMICOL)){
-                claseif->slist2.push_back(parseStm());
-            }
+            claseif->parteelse=true; 
+            claseif->caso2 = parseBody();
         }
         match(Token::ENDIF);
         return claseif;
@@ -199,6 +215,12 @@ Exp* Parser::parseF() {
     else if (match(Token::ID))
     {   
         return new IdExp(previous->text);
+    }
+    else if (match(Token::TRUE)) {
+        return new NumberExp(1);
+    }
+    else if (match(Token::FALSE)) {
+        return new NumberExp(0);
     }
     else {
         throw runtime_error("Error sintáctico");

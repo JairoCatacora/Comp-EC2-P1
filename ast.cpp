@@ -66,10 +66,6 @@ AssignStm::AssignStm(string variable,Exp* expresion){
 
 Program::Program(){}
 
-void Program::add(Stm* a){
-    slist.push_back(a);
-}
-
 IfStm::IfStm(Exp* e){
     condicion = e;
     parteelse = false;
@@ -81,3 +77,9 @@ WhileStm::WhileStm(Exp* e){
 
 IfStm::~IfStm(){}
 WhileStm::~WhileStm(){}
+
+Body::Body() {}
+Body::~Body() {}
+
+VarDec::VarDec() {}
+VarDec::~VarDec() {}

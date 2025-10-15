@@ -23,6 +23,8 @@ public:
     virtual int visit(WhileStm* stm) = 0;
     virtual int visit(IfStm* stm) = 0;
     virtual int visit(AssignStm* stm) = 0;
+    virtual int visit(Body* b) = 0;
+    virtual int visit(VarDec* v) = 0;  
 };
 
 
@@ -39,6 +41,8 @@ public:
     int visit(AssignStm* stm) override;
     int visit(WhileStm* stm) override;
     int visit(IfStm* stm) override;
+    int visit(Body* b) override;
+    int visit(VarDec* v) override;
     void imprimir(Program* program); 
 };
 
@@ -53,7 +57,8 @@ public:
     int visit(AssignStm* stm) override;
     int visit(WhileStm* stm) override;
     int visit(IfStm* stm) override;
-
+    int visit(Body* b) override;
+    int visit(VarDec* v) override;
     void interprete(Program* program);
 };
 
